@@ -32,9 +32,16 @@ def handle_request(client_connection, request):
     def send_str(data):
         return client_connection.send(data.encode('utf-8'))
 
-    method, path, protocol_info, *_ = request.decode("utf-8").split(' ')
+    print(request.decode("utf-8"))
 
-    path = path.split('?')[0].lstrip('/')
+    request_list_string = request.decode("utf-8").split(' ')
+
+    if(len(request_list_string) < 3):
+        return None
+
+    method = request_list_string[0]
+    path = request_list_string[1].split('?')[0].lstrip('/')
+    protocol_info = request_list_string[2]
 
     if protocol_info.find('HTTP') == -1:
         print('[debug] Protocolo inválido')
