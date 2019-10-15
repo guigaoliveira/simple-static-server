@@ -2,7 +2,7 @@ import socket
 import codecs
 import os
 
-HOST = ''
+HOST = '127.0.0.1'
 PORT = 8081
 
 listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -27,25 +27,25 @@ def read_file(path):
     return contents
 
 
+def send_text(client_connection, data):
+    return client_connection.send(data.encode('utf-8'))
+
+def send_bad_request(client_connection): 
+    return send_text(client_connection, "HTTP/1.1 400 Bad Request\r\n\r\n <html> <head></head> <body> <h1>400 Bad Resquest</h1> </body> </html>\r\n")
+
 def handle_request(client_connection, request):
-
-    def send_str(data):
-        return client_connection.send(data.encode('utf-8'))
-
-    print(request.decode("utf-8"))
 
     request_list_string = request.decode("utf-8").split(' ')
 
     if(len(request_list_string) < 3):
-        return None
+        return send_bad_request(client_connection) 
 
     method = request_list_string[0]
     path = request_list_string[1].split('?')[0].lstrip('/')
     protocol_info = request_list_string[2]
 
     if protocol_info.find('HTTP') == -1:
-        print('[debug] Protocolo inválido')
-        return None
+        return send_bad_request(client_connection) 
 
     if 'GET' == method:
 
@@ -77,10 +77,10 @@ def handle_request(client_connection, request):
 
             return client_connection.send(final_response)
         else:
-            return send_str("HTTP/1.1 404 Not Found\r\n\r\n <html> <head></head> <body> <h1>404 Not Found</h1> </body> </html>\r\n")
+            return send_text(client_connection, "HTTP/1.1 404 Not Found\r\n\r\n <html> <head></head> <body> <h1>404 Not Found</h1> </body> </html>\r\n")
 
     else:
-        return send_str("HTTP/1.1 400 Bad Request\r\n\r\n <html> <head></head> <body> <h1>400 Bad Resquest</h1> </body> </html>\r\n")
+        return send_bad_request(client_connection) 
 
 
 while True:
