@@ -15,7 +15,9 @@ def send_text(client_connection, data):
     return client_connection.send(data.encode('utf-8'))
 
 def send_bad_request(client_connection): 
-    return send_text(client_connection, "HTTP/1.1 400 Bad Request\r\n\r\n <html> <head></head> <body> <h1>400 Bad Resquest</h1> </body> </html>\r\n")
+    bad_request_payload = """HTTP/1.1 400 Bad Request\r\n\r\n
+        <html><head></head><body><h1>400 Bad Resquest</h1></body></html>\r\n"""
+    return send_text(client_connection, bad_request_payload)
 
 def handle_request(client_connection, request):
     request_list_string = request.decode("utf-8").split(' ')
@@ -35,7 +37,7 @@ def handle_request(client_connection, request):
         if(path == ''):
             path = 'index.html'
         file_contents = read_file(path)
-        if(file_contents != None):
+        if(file_contents is not None):
             header = 'HTTP/1.1 200 OK\n'
             extension = os.path.splitext(path)[1]
             extension_and_mime = {
@@ -50,7 +52,12 @@ def handle_request(client_connection, request):
             final_response = header.encode('utf-8') + file_contents
             return client_connection.send(final_response)
         else:
-            return send_text(client_connection, "HTTP/1.1 404 Not Found\r\n\r\n <html> <head></head> <body> <h1>404 Not Found</h1> </body> </html>\r\n")
+            not_found_payload = """HTTP/1.1 404 Not Found\r\n\r\n 
+                <html>
+                <head></head>
+                <body><h1>404 Not Found</h1></body>
+                </html>\r\n"""
+            return send_text(client_connection, not_found_payload)
     else:
         return send_bad_request(client_connection) 
     
