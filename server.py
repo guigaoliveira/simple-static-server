@@ -33,10 +33,14 @@ def handle_request(client_connection, request):
         return send_bad_request(client_connection) 
     
     if 'GET' == method:
+        
         file_contents = None
+        
         if(path == ''):
             path = 'index.html'
+            
         file_contents = read_file(path)
+        
         if(file_contents is not None):
             header = 'HTTP/1.1 200 OK\n'
             extension = os.path.splitext(path)[1]
